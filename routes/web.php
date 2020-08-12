@@ -17,4 +17,4 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::match(['get', 'post'], '/profile/{id}', 'HomeController@index')->name('profile');

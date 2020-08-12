@@ -25,7 +25,10 @@ class VerificationController extends Controller
      *
      * @var string
      */
-    protected $redirectTo = '/home';
+    //protected $redirectTo = '/profile';
+    protected function redirectTo() {
+        return '/profile/' . auth()->user()->id;
+    }
 
     /**
      * Create a new controller instance.
