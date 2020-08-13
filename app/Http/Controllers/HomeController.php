@@ -14,7 +14,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth');
+        //$this->middleware('auth');
     }
 
     /**
@@ -42,16 +42,56 @@ class HomeController extends Controller
             $comment->save();
         }
 
+        elseif($request->has('delcom')) {
+            $comment = App\Comment::where('id', $request->com)->update(['delete' => 1]);
+        }
+
         $comments = [];
 
-        $get_comments = App\Comment::where('page_id', $id)->orderBy('created_at')->take(5)->get();
+        $get_comments = App\Comment::where('page_id', $id)->take(5)->orderBy('created_at')->get();
 
         foreach ($get_comments as $comment) {
             $username = App\User::find($comment->user_id);
 
-            array_push($comments, array('username' => $username->name, 'created_at' => $comment->created_at, 'title' => $comment->title, 'theme' => $comment->theme, 'text' => $comment->text));
+            array_push($comments, array(
+                'id' => $comment->id,
+                'user_id' => $comment->user_id, 
+                'username' => $username->name, 
+                'created_at' => $comment->created_at, 
+                'title' => $comment->title, 
+                'theme' => $comment->theme, 
+                'text' => $comment->text, 
+                'page_id' => $comment->page_id,
+                'delete' => $comment->delete
+            ));
         }
 
-        return view('profile', compact('user', 'comments', 'comment_users'));
+        return view('profile', compact('user', 'comments'));
+    }
+
+    public function comments(Request $request) {
+        $count = App\Comment::where('page_id', $request->page)->count();
+
+        $comments = App\Comment::where('page_id', $request->page)->skip(5)->take($count-5)->get();
+
+        $data = [];
+        foreach ($comments as $comment) {
+            $username = App\User::find($comment->user_id);
+
+            array_push($data, array(
+                'id' => $comment->id,
+                'user_id' => $comment->user_id, 
+                'username' => $username->name, 
+                'created_at' => $comment->created_at, 
+                'title' => $comment->title, 
+                'theme' => $comment->theme, 
+                'text' => $comment->text, 
+                'page_id' => $comment->page_id,
+                'delete' => $comment->delete,
+                'auth' => auth()->user()->id
+            ));
+        }
+
+        return response()->json($data);
     }
 }
