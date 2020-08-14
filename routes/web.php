@@ -18,4 +18,7 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::match(['get', 'post'], '/profile/{id}', 'HomeController@index')->name('profile');
-Route::get('/getcomment', 'HomeController@comments');
+
+Route::get('/getcomment', 'HomeController@get_comments');
+
+Route::get('/comments/{id}', 'HomeController@comments')->name('comments');

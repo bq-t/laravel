@@ -16,7 +16,7 @@ class CreateCommentRepliesTable extends Migration
         Schema::create('comment_replies', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->bigInteger('comment_id');
-            $table->bigInteger('main_comment_id');
+            $table->bigInteger('to_comment_id');
             $table->timestamps();
         });
     }

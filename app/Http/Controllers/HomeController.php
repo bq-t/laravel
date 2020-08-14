@@ -25,9 +25,8 @@ class HomeController extends Controller
     public function index(Request $request)
     {
         $id = $request->route('id');
-
         App\User::findOrFail($id);
-
+        $reply = [];
         $user = App\User::find($id);
 
         if($request->has('submit')) {
@@ -40,58 +39,59 @@ class HomeController extends Controller
             $comment->text = $request->text;
 
             $comment->save();
+
+            if($request->has('reply_id')) {
+                $quote = new App\CommentReply;
+
+                $quote->comment_id = $comment->id;
+                $quote->to_comment_id = $request->reply_id;
+
+                $quote->save();
+            }
         }
 
         elseif($request->has('delcom')) {
-            $comment = App\Comment::where('id', $request->com)->update(['delete' => 1]);
+            $user_id = auth()->user()->id;
+            $comment = App\Comment::where('id', $request->com);
+
+            if($comment->first()->user_id == $user_id || $id == $user_id) {
+                $comment->update(['delete' => 1]);
+            }
         }
 
-        $comments = [];
+        elseif($request->has('replycom')) {
+            $r_id = $request->com;
+            $r_com = App\Comment::where('id', $r_id)->first();
+            $r_user = App\User::find($r_com->user_id);
+
+            $reply['id'] = $r_id;
+            $reply['user'] = $r_user->name;
+        }
 
         $get_comments = App\Comment::where('page_id', $id)->take(5)->orderBy('created_at')->get();
+        $comments = App\Comment::CreateCommentsArray($get_comments);
 
-        foreach ($get_comments as $comment) {
-            $username = App\User::find($comment->user_id);
+        return view('profile', compact('user', 'comments', 'reply'));
+    }
 
-            array_push($comments, array(
-                'id' => $comment->id,
-                'user_id' => $comment->user_id, 
-                'username' => $username->name, 
-                'created_at' => $comment->created_at, 
-                'title' => $comment->title, 
-                'theme' => $comment->theme, 
-                'text' => $comment->text, 
-                'page_id' => $comment->page_id,
-                'delete' => $comment->delete
-            ));
-        }
 
-        return view('profile', compact('user', 'comments'));
+
+
+    public function get_comments(Request $request) {
+        $count = App\Comment::where('page_id', $request->page)->count();
+
+        $get_comments = App\Comment::where('page_id', $request->page)->skip(5)->take($count-5)->get();
+        $comments = App\Comment::CreateCommentsArray($get_comments);
+
+        return response()->json($comments);
     }
 
     public function comments(Request $request) {
-        $count = App\Comment::where('page_id', $request->page)->count();
+        $id = $request->id;
+        App\User::findOrFail($id);
+        $user = App\User::find($id);
+        $comments = $user->Comments()->where('delete', '0')->get();
 
-        $comments = App\Comment::where('page_id', $request->page)->skip(5)->take($count-5)->get();
-
-        $data = [];
-        foreach ($comments as $comment) {
-            $username = App\User::find($comment->user_id);
-
-            array_push($data, array(
-                'id' => $comment->id,
-                'user_id' => $comment->user_id, 
-                'username' => $username->name, 
-                'created_at' => $comment->created_at, 
-                'title' => $comment->title, 
-                'theme' => $comment->theme, 
-                'text' => $comment->text, 
-                'page_id' => $comment->page_id,
-                'delete' => $comment->delete,
-                'auth' => auth()->user()->id
-            ));
-        }
-
-        return response()->json($data);
+        return view('comments', compact('comments', 'user'));
     }
 }
