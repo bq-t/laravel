@@ -67,6 +67,7 @@ F<!DOCTYPE html>
         <div class="flex-center position-ref full-height">
             @if (Route::has('login'))
                 <div class="top-right links">
+                    <a href="{{ url('/users') }}">Users</a>
                     @auth
                         <a href="{{ url('/profile',auth()->user()->id) }}">Home</a>
                     @else

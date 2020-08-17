@@ -10,35 +10,21 @@ class Comment extends Model {
 		return $this->hasOne('App\CommentReply');
 	}
 
-	public static function CreateCommentsArray($query) {
+	public static function CreateCommentsArray($query, $auth) {
 
         $data = [];
 
         foreach ($query as $comment) {
             $username = User::find($comment->user_id)->name;
-            $id = $comment->id;
 
-            $arr = array(
-                'id' => $id,
-                'user_id' => $comment->user_id, 
+            $arr = $comment->toArray();
+
+            $arr = array_merge($arr, array(
                 'username' => $username, 
-                'created_at' => $comment->created_at, 
-                'title' => $comment->title, 
-                'theme' => $comment->theme, 
-                'text' => $comment->text, 
-                'page_id' => $comment->page_id,
-                'delete' => $comment->delete
-            );
+                'auth' => $auth
+            ));
 
-            if(auth()->user() == NULL){
-            	$auth = [ 'auth' => -1 ];
-            }
-            else {
-            	$auth = [ 'auth' => auth()->user()->id ];
-            }
-            $arr = array_merge($arr,$auth);
-
-            $get_quote = static::find($id)->GetReply;
+            $get_quote = $comment->GetReply;
 
             if($get_quote != null) {
 

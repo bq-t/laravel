@@ -41,13 +41,13 @@
                             {{ $comment['text'] }}
                         </div>
                         @auth
-                            <form method="POST">
+                            @if ($comment['user_id'] == $comment['auth'] || $comment['page_id'] == $comment['auth'])
+                            <a href="{{ route('comment_delete', ['id' => $comment['id'], 'page_id' => $user->id]) }}" class="btn btn-primary mb-2">Удалить</a>
+                            @endif
+                            <form method="POST" action="">
                                 @csrf
                                 <input type="hidden" name="com" value="{{ $comment['id'] }}">
-                                @if ($comment['user_id'] == $comment['auth'] || $comment['page_id'] == $comment['auth'])
-                                <input type="submit" name="delcom" value="Удалить">
-                                @endif
-                                <input type="submit" name="replycom" value="Ответить">
+                                <input type="submit" name="replycom" value="Ответить" class="btn btn-primary">
                             </form>
                         @endauth
                     </div>
@@ -63,7 +63,7 @@
         </div>
         <div class="col-md-4">
             @auth
-            <form method="POST">
+            <form method="POST" action="{{ route('comment_create', ['page_id' => $user->id]) }}">
                 @csrf
                 <div class="card">
                     <div class="card-header">Оставить комментарий</div>
@@ -72,20 +72,21 @@
                         <b>В ответ {{ $reply['user'] }}</b>
                         <input type="hidden" name="reply_id" value="{{ $reply['id'] }}">
                         @endif
-                        <input class="form-control" name="title" placeholder="Заголовок" required>
+                        <input class="form-control mb-2" name="title" placeholder="Заголовок" required>
                         @if ($reply == null)
-                        <input class="form-control" name="theme" placeholder="Тема" required>
+                        <input class="form-control mb-2" name="theme" placeholder="Тема" required>
                         @endif
-                        <input class="form-control" name="text" placeholder="Сообщение" required>
-                        <input type="submit" name="submit">
+                        <input class="form-control mb-2" name="text" placeholder="Сообщение" required>
+                        <input type="submit" name="submit" class="btn btn-primary">
                     </div>
                 </div>
             </form>
             @endauth
             <div class="card mt-3">
-                <div class="card-header">Все комментарии пользователя:</div>
+                <div class="card-header">О пользователе:</div>
                 <div class="card-body">
-                    <a href="{{ URL('comments/'.$user->id) }}">Открыть</a>
+                    <a href="{{ URL('comments/'.$user->id) }}" class="btn btn-primary mb-2">Все комментарии</a><br>
+                    <a href="{{ URL('lib/'.$user->id) }}" class="btn btn-primary">Библиотека книг</a>
                 </div>
             </div>
         </div>
