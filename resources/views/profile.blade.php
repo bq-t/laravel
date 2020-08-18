@@ -41,13 +41,13 @@
                             {{ $comment['text'] }}
                         </div>
                         @auth
-                            @if ($comment['user_id'] == $comment['auth'] || $comment['page_id'] == $comment['auth'])
-                            <a href="{{ route('comment_delete', ['id' => $comment['id'], 'page_id' => $user->id]) }}" class="btn btn-primary mb-2">Удалить</a>
-                            @endif
                             <form method="POST" action="">
                                 @csrf
                                 <input type="hidden" name="com" value="{{ $comment['id'] }}">
-                                <input type="submit" name="replycom" value="Ответить" class="btn btn-primary">
+                                @if ($comment['user_id'] == $comment['auth'] || $comment['page_id'] == $comment['auth'])
+                                <a href="{{ route('comment_delete', ['id' => $comment['id'], 'page_id' => $user->id]) }}" class="btn btn-primary mb-2">Удалить</a>
+                                @endif
+                                <input type="submit" name="replycom" value="Ответить" class="btn btn-primary mb-2">
                             </form>
                         @endauth
                     </div>
@@ -111,7 +111,7 @@
                                 quote = '';
 
                             if(result[i].user_id == result[i].auth || result[i].page_id == result[i].auth) {
-                                string = '<input type="submit" name="delcom" value="Удалить">';
+                                string = `<a href="/comment/delete?id=${result[i].id}&page_id=${result[i].page_id}" class="btn btn-primary mb-2">Удалить</a>`;
                             }
                             if(typeof result[i].quote_name !== "undefined") {
                                 if(!result[i].quote_del) {
@@ -145,7 +145,7 @@
                                                 @csrf
                                                 <input type="hidden" name="com" value="${result[i].id}">
                                                 ${string}
-                                                <input type="submit" name="replycom" value="Ответить">
+                                                <input type="submit" name="replycom" value="Ответить" class="btn btn-primary mb-2">
                                             </form>
                                         @endauth
                                     </div>

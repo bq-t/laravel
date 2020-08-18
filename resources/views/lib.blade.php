@@ -20,15 +20,14 @@
                         Содержание:<br>
                         {{ $book->text }}
                         <div class="mt-3">
-                            <a href="{{ url('book/1') }}" class="btn btn-primary mb-2">Читать</a>
+                            <a href="{{ route('book', ['id' => $book->id]) }}" class="btn btn-primary mb-2">Читать</a>
                             <form method="POST" action="">
                                 @csrf
                                 <input type="hidden" name="id">
                                 <input type="submit" name="share" value="Открыть по ссылке" class="btn btn-primary mb-2">
                             </form>
-                            <form method="POST" action="">
+                            <form method="POST" action="{{ route('book_edit', ['id' => $book->id]) }}">
                                 @csrf
-                                <input type="hidden" name="id">
                                 <input type="submit" name="edit" value="Редактировать" class="btn btn-primary mb-2">
                             </form>
                             <a href="{{ route('book_delete', ['id' => $book->id]) }}" class="btn btn-primary">Удалить</a>
