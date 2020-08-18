@@ -25,7 +25,6 @@ Route::get('/comments/{id}', 'HomeController@comments')->name('comments');
 
 
 Route::post('/comment/create', 'HomeController@create')->name('comment_create');
-//Route::post('/comment/reply', 'HomeController@reply')->name('comment_reply');
 Route::get('/comment/delete', 'HomeController@delete')->name('comment_delete');
 
 
@@ -33,11 +32,13 @@ Route::get('/comment/delete', 'HomeController@delete')->name('comment_delete');
 Route::get('/users', 'HomeController@users')->name('users');
 
 Route::match(['get', 'post'], '/lib/{id}', 'LibController@index')->name('lib');
+Route::post('/lib/form/share', 'LibController@share')->name('lib_share');
+Route::post('/lib/form/take', 'LibController@take_access')->name('lib_take');
 
-Route::get('/book/{id}', 'LibController@book')->name('book');
 
+Route::get('/book/{id}', 'BookController@index')->name('book');
 
-Route::post('/lib/form/create', 'LibController@create')->name('book_create');
-Route::post('/book/{id}/edit', 'LibController@edit')->name('book_edit');
-Route::post('/lib/form/open', 'LibController@open')->name('book_open');
-Route::get('/lib/form/delete', 'LibController@delete')->name('book_delete');
+Route::post('/book/form/create', 'BookController@create')->name('book_create');
+Route::post('/book/{id}/edit', 'BookController@edit')->name('book_edit');
+Route::post('/book/form/open', 'BookController@open')->name('book_open');
+Route::get('/book/form/delete', 'BookController@delete')->name('book_delete');

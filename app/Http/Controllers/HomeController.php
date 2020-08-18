@@ -26,6 +26,13 @@ class HomeController extends Controller
     {
         $id = $request->route('id');
         $user = App\User::findOrFail($id);
+        $access = null;
+
+        if(auth()->user() != null) {
+            if($id != auth()->user()->id) {
+                $access = App\LibAccess::where([['lib_id', auth()->user()->id], ['user_id', $id]])->first();
+            }
+        }
 
         if(!$request->has('reply')) {
             $reply = [];
@@ -50,7 +57,7 @@ class HomeController extends Controller
         $get_comments = App\Comment::where('page_id', $id)->take(5)->orderBy('created_at')->get();
         $comments = App\Comment::CreateCommentsArray($get_comments, $auth);
 
-        return view('profile', compact('user', 'comments', 'reply'));
+        return view('profile', compact('user', 'comments', 'reply', 'access'));
     }
 
     public function create(Request $request) {

@@ -4,7 +4,7 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-8" id="Comments">
-            <div class="card">
+            <div class="card mb-2">
                 <div class="card-header">{{ $user->name }}</div>
                 <div class="card-body">
                     @if (session('status'))
@@ -12,8 +12,25 @@
                             {{ session('status') }}
                         </div>
                     @endif
-
-                    You are logged in!
+                    @auth
+                        @if ($user->id != auth()->user()->id)
+                            @if ($access == null)
+                            <form method="POST" action="{{ route('lib_share') }}">
+                                @csrf
+                                <input type="hidden" name="id" value="{{ $user->id }}">
+                                <input type="submit" class="btn btn-success" value="Дать доступ к библиотеке">
+                            </form>
+                            @else
+                            <form method="POST" action="{{ route('lib_take') }}">
+                                @csrf
+                                <input type="hidden" name="id" value="{{ $user->id }}">
+                                <input type="submit" class="btn btn-danger" value="Отнять доступ к библиотеке">
+                            </form>
+                            @endif
+                        @else
+                            <div>:)</div>
+                        @endif
+                    @endauth
                 </div>
             </div>
             @foreach ($comments as $comment)
@@ -59,7 +76,7 @@
                 </div>
                 @endif
             @endforeach
-            <button id="comments_more">Еще..</button>
+            <button id="comments_more" class="btn btn-primary">Еще..</button>
         </div>
         <div class="col-md-4">
             @auth

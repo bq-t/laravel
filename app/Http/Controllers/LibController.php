@@ -6,6 +6,11 @@ use App;
 use Illuminate\Http\Request;
 
 class LibController extends Controller {
+
+	public function __construct() {
+		$this->middleware('auth');
+		$this->middleware('lib_access')->except(['share', 'take_access']);;
+	}
     
 	public function index(Request $request) {
 
@@ -17,61 +22,24 @@ class LibController extends Controller {
 		return view('lib', compact('books'));
 	}
 
-	/*public function form(Request $request) {
-		
+	public function share(Request $request) {
 
-		return redirect()->route('library', ['id' => 1]);
-	}*/
+		$access = new App\LibAccess;
 
-	public function book(Request $request) {
-		$book = $this->GetBookById($request->id);
+		$access->lib_id = auth()->user()->id;
+		$access->user_id = $request->id;
 
-		return view('book', compact('book'));
-	}
-
-	public function create(Request $request) {
-
-		$book = new App\Book;
-
-		$book->user_id = auth()->user()->id;
-		$book->name = $request->name;
-		$book->text = $request->text;
-
-		$book->save();
+		$access->save();
 
 		return back();
 	}
 
-	public function edit(Request $request) {
-		$book = $this->GetBookById($request->id);
+	public function take_access(Request $request) {
+		$id = auth()->user()->id;
 
-		if($request->has('submit')) {
-
-			if($book->user_id == auth()->user()->id) {
-				$book->name = $request->name;
-				$book->text = $request->text;
-				$book->save();
-			}
-
-			return redirect()->route('book', ['id' => $request->id]);
-		}
-
-		return view('book_edit', compact('book'));
-	}
-
-	public function delete(Request $request) {
-		$book = $this->GetBookById($request->id);
-
-		if($book->user_id == auth()->user()->id) {
-			$book->delete();
-		}
+		$access = App\LibAccess::where([['lib_id', $id], ['user_id', $request->id]])->first();
+		$access->delete();
 
 		return back();
-	}
-
-
-	public function GetBookById($id) {
-		$book = App\Book::findOrFail($id);
-		return $book;
 	}
 }
